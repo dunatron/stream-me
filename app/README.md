@@ -2,7 +2,7 @@
 
 this project is a client side app supporting the strem-me typegraphql
 
-## Project setup from scratch
+## Section-1 Next.js Step 1 Project setup from scratch
 
 - `mkdir app`
 - `cd app`
@@ -123,3 +123,5 @@ export default ({ Component, pageProps }) => <Component {...pageProps} />;
 ```
 
 Note: you will need to stop and restart your development server.
+
+## Section-1 Next.js Step 1 Project setup from scratch

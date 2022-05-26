@@ -77,4 +77,4 @@ To start off navigate to the `app/README.md` file where we will kick things off 
 
 ## Steps
 
-- [Section 1 Next.js Step-1: Project setup](https://github.com/dunatron/stream-me/tree/step-1-project-setup)
+- [Section 1 Next.js Step-1: Project setup](https://github.com/dunatron/stream-me/tree/section-1-step-1/app)
