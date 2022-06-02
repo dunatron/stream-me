@@ -169,3 +169,210 @@ export default MyDocument;
 Notes: `_document.tsx` work is all done server side so you cannot do any client side work here, e.g onClick or access to the window object etc
 
 Now we can install A component library such as Material-UI to get started building our custom components
+
+## Section-1 Step 3 Material UI
+
+Material UI is a react component library for faster development. Developed from the ground up with the constraint of rendering on the server but it is up to us to make sure it is correctly integrated
+
+[Next js rendering](https://nextjs.org/learn/foundations/how-nextjs-works/rendering)
+
+To install make sure you are not running your server then npm install  
+`npm install @mui/material @emotion/react @emotion/styled @emotion/server @emotion/cache`
+
+once that has finished we will begin creating our light and dark themes.  
+Create a new folder called lib and a file inside it called theme.ts `app/lib/theme.ts` we will begin by creating two themes, "themeDark" and "themeLight" and setting the palettes for them. We then export the two themes to use
+
+```tsx
+import { grey } from "@mui/material/colors";
+import { createTheme } from "@mui/material/styles";
+
+const themeDark = createTheme({
+  palette: {
+    primary: { main: grey[200] },
+    secondary: { main: grey[400] },
+    mode: "dark",
+  },
+});
+const themeLight = createTheme({
+  palette: {
+    primary: { main: grey[800] },
+    secondary: { main: grey[900] },
+    mode: "light",
+  },
+});
+
+export { themeDark, themeLight };
+```
+
+Next we will create a new file to setup the emotion css cache.
+`app/lib/createEmotionCache.ts`
+
+```tsx
+import createCache from "@emotion/cache";
+
+// prepend: true moves MUI styles to the top of the <head> so they're loaded first.
+// It allows developers to easily override MUI styles with other styling solutions, like CSS modules.
+export default function createEmotionCache() {
+  return createCache({ key: "css", prepend: true });
+}
+```
+
+We will then modify the `_document.tsx` and `_app.tsx` files in the pages directory to correctly integrate material with emotion. In the \_document.tsx file
+
+`_document.tsx`
+
+```tsx
+import Document, {
+  DocumentContext,
+  DocumentInitialProps,
+  Head,
+  Html,
+  Main,
+  NextScript,
+} from "next/document";
+import createEmotionServer from "@emotion/server/create-instance";
+
+import createEmotionCache from "lib/createEmotionCache";
+import { themeDark } from "lib/theme";
+
+const theme = themeDark;
+
+interface CustomDocumentInitialProps extends DocumentInitialProps {
+  emotionStyleTags: React.ReactElement[] | React.ReactFragment;
+}
+
+class MyDocument extends Document {
+  // `getInitialProps` belongs to `_document` (instead of `_app`),
+  // it's compatible with static-site generation (SSG).
+  static async getInitialProps(
+    ctx: DocumentContext
+  ): Promise<CustomDocumentInitialProps> {
+    // Resolution order
+    //
+    // On the server:
+    // 1. app.getInitialProps
+    // 2. page.getInitialProps
+    // 3. document.getInitialProps
+    // 4. app.render
+    // 5. page.render
+    // 6. document.render
+    //
+    // On the server with error:
+    // 1. document.getInitialProps
+    // 2. app.render
+    // 3. page.render
+    // 4. document.render
+    //
+    // On the client
+    // 1. app.getInitialProps
+    // 2. page.getInitialProps
+    // 3. app.render
+    // 4. page.render
+    const originalRenderPage = ctx.renderPage;
+
+    // You can consider sharing the same emotion cache between all the SSR requests to speed up performance.
+    // However, be aware that it can have global side effects.
+    const cache = createEmotionCache();
+    const { extractCriticalToChunks } = createEmotionServer(cache);
+
+    ctx.renderPage = () =>
+      originalRenderPage({
+        enhanceApp: (App: any) =>
+          function EnhanceApp(props) {
+            return <App emotionCache={cache} {...props} />;
+          },
+      });
+
+    const initialProps = await Document.getInitialProps(ctx);
+
+    // This is important. It prevents emotion to render invalid HTML.
+    // See https://github.com/mui/material-ui/issues/26561#issuecomment-855286153
+    const emotionStyles = extractCriticalToChunks(initialProps.html);
+    const emotionStyleTags = emotionStyles.styles.map((style) => (
+      <style
+        data-emotion={`${style.key} ${style.ids.join(" ")}`}
+        key={style.key}
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: style.css }}
+      />
+    ));
+
+    return {
+      ...initialProps,
+      emotionStyleTags,
+    };
+  }
+
+  render() {
+    return (
+      <Html lang="en">
+        <Head>
+          {/* PWA primary color */}
+          <meta name="theme-color" content={theme.palette.primary.main} />
+          <link rel="shortcut icon" href="/static/favicon.ico" />
+          <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+          />
+          {/* Inject MUI styles first to match with the prepend: true configuration. */}
+          {(this.props as any).emotionStyleTags}
+        </Head>
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
+}
+
+export default MyDocument;
+```
+
+`_app.tsx`
+
+```tsx
+import App from "next/app";
+import React from "react";
+import Head from "next/head";
+import { AppProps } from "next/app";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import { CacheProvider, EmotionCache } from "@emotion/react";
+import { themeLight, themeDark } from "lib/theme";
+import createEmotionCache from "lib/createEmotionCache";
+
+const useDarkTheme = true;
+
+// Client-side cache, shared for the whole session of the user in the browser.
+const clientSideEmotionCache = createEmotionCache();
+
+interface MyAppProps extends AppProps {
+  emotionCache?: EmotionCache;
+}
+
+export default function MyApp(props: MyAppProps) {
+  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  return (
+    <CacheProvider value={emotionCache}>
+      <Head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </Head>
+      <ThemeProvider theme={useDarkTheme ? themeDark : themeLight}>
+        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+        <CssBaseline />
+        <Component {...pageProps} />
+      </ThemeProvider>
+    </CacheProvider>
+  );
+}
+```
+
+Your css should now be loaded correctly server and client side and there should be no flicker. You can check by inspecting the network tab and refreshing. the page should have a dark background when checking the localhost preview on the network tab.  
+Hint: try commenting this code out then reloaded to see the flicker
+
+```tsx
+{
+  (this.props as any).emotionStyleTags;
+}
+```

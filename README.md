@@ -83,3 +83,5 @@ To start off navigate to the `app/README.md` file where we will kick things off 
 
 - [Section 1 Next.js Step-1: Project setup](https://github.com/dunatron/stream-me/tree/section-1-step-1/app)
 - [Section 1 Next.js Step-2: Custom Document](https://github.com/dunatron/stream-me/tree/section-1-step-2)
+
+- [Section 1 Next.js Step-3: Material UI](https://github.com/dunatron/stream-me/tree/section-1-step-3)
