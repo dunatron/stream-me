@@ -376,3 +376,50 @@ Hint: try commenting this code out then reloaded to see the flicker
   (this.props as any).emotionStyleTags;
 }
 ```
+
+## Section-1 Step 4 Linking Pages
+
+next we will create a new page called about and import some material components and the `Link` component from next js. first modify the contents of
+`pages/index.tsx`
+
+```tsx
+import { Container, Box, Typography, Button } from "@mui/material";
+import Link from "next/link";
+
+export default function Index() {
+  return (
+    <Container maxWidth="sm">
+      <Box my={4}>
+        <Typography>Next.js Example</Typography>
+        <Link href="/about">
+          <Button variant="contained" color="primary">
+            Got to the about page
+          </Button>
+        </Link>
+      </Box>
+    </Container>
+  );
+}
+```
+
+next create the about page which will be a copy of the index page but will take us to the home page instead
+
+```tsx
+import { Container, Box, Typography, Button } from "@mui/material";
+import Link from "next/link";
+
+export default function Index() {
+  return (
+    <Container maxWidth="sm">
+      <Box my={4}>
+        <Typography>Next.js Example</Typography>
+        <Link href="/">
+          <Button variant="contained" color="primary">
+            Got to the index/home page
+          </Button>
+        </Link>
+      </Box>
+    </Container>
+  );
+}
+```
