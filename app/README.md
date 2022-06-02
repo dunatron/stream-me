@@ -124,4 +124,48 @@ export default ({ Component, pageProps }) => <Component {...pageProps} />;
 
 Note: you will need to stop and restart your development server.
 
-## Section-1 Next.js Step 1 Project setup from scratch
+## Section-1 Next.js Step 2 Custom Document
+
+We will create a custom Document Component in order to augment our application style tags  
+This is necesarry because next js will inject some style sheets into the Document Object Model(DOM) using this Custom Document  
+To override create a new file called `pages/_document.tsx` in the pages folder
+
+Instead of creating a functional component like we did in \_app.tsx we will create a class Component this time round
+
+```tsx
+import Document, {
+  DocumentContext,
+  DocumentInitialProps,
+  Head,
+  Html,
+  Main,
+  NextScript,
+} from "next/document";
+
+class MyDocument extends Document {
+  static async getInitialProps(
+    ctx: DocumentContext
+  ): Promise<DocumentInitialProps> {
+    const initialProps = await Document.getInitialProps(ctx);
+    return { ...initialProps };
+  }
+
+  render() {
+    return (
+      <Html>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    );
+  }
+}
+
+export default MyDocument;
+```
+
+Notes: `_document.tsx` work is all done server side so you cannot do any client side work here, e.g onClick or access to the window object etc
+
+Now we can install A component library such as Material-UI to get started building our custom components

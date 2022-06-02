@@ -14,6 +14,10 @@ Next.js gives you the best developer experience with all the features you need f
 
 - Build a monorepo server with yarn workspaces
 
+`What is a monorepo`
+This is a big deal but may be overwhelming to start off with. Please do read and perhaps have a re-read later
+read all about it here [What is monorepo? (and should you use it?)](https://semaphoreci.com/blog/what-is-monorepo)
+
 `How long is this course?`
 
 The entire course should take between two to four weeks to complete.
@@ -78,3 +82,4 @@ To start off navigate to the `app/README.md` file where we will kick things off 
 ## Steps
 
 - [Section 1 Next.js Step-1: Project setup](https://github.com/dunatron/stream-me/tree/section-1-step-1/app)
+- [Section 1 Next.js Step-2: Custom Document](https://github.com/dunatron/stream-me/tree/section-1-step-2)
