@@ -1,5 +1,5 @@
 import App from "next/app";
-import React from "react";
+import React, { useEffect } from "react";
 import Head from "next/head";
 import { AppProps } from "next/app";
 import { ThemeProvider } from "@mui/material/styles";
@@ -19,6 +19,14 @@ interface MyAppProps extends AppProps {
 
 export default function MyApp(props: MyAppProps) {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+
+  useEffect(() => {
+    // Remove the server-side injected CSS
+    const jssStyles = document.querySelector("#jss-server-side");
+    if (jssStyles && jssStyles.parentNode) {
+      jssStyles.parentNode.removeChild(jssStyles);
+    }
+  });
   return (
     <CacheProvider value={emotionCache}>
       <Head>
